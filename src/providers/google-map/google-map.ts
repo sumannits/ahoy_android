@@ -10,9 +10,10 @@ import { Geolocation } from '@ionic-native/geolocation';
   See https://angular.io/guide/dependency-injection for more info on providers
   and Angular DI.
 */
+var google;
 @Injectable()
 export class GoogleMapProvider {
-
+  
   mapElement: any;
   pleaseConnect: any;
   map: any;
