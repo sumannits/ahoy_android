@@ -3,8 +3,10 @@ import {Headers, Http, Response, URLSearchParams  } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { HttpClient } from '@angular/common/http';
 import { LoadingController } from 'ionic-angular';
-//let apiUrl = 'http://192.168.1.68:3000/api/';
+// let apiUrl = 'http://192.168.1.68:3000/api/';
+// let fileUrl = 'http://192.168.1.68/loopback/collinwood/backend/uploads/';
 let apiUrl = 'http://111.93.169.90:3006/api/';
+let fileUrl = 'http://111.93.169.90/team2/ahoy/service/uploads/'
 /*
   Generated class for the AuthServiceProvider provider.
 
@@ -18,6 +20,16 @@ export class AuthServiceProvider {
     //console.log('Hello AuthServiceProvider Provider');
   }
   public details ;
+
+  apiUrlFun(){
+    return apiUrl;
+  }
+
+  apiImgUrl(){
+    return fileUrl;
+  }
+  
+
   postData(credentials, type) {
     let loading = this.loadingCtrl.create({
       content: 'Please wait...'

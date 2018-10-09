@@ -82,4 +82,57 @@ page-editprofile {
     }
     .padding-eight{padding:8px;}
     .add-interest .list .item-block{margin-bottom:0 !important}
+    .user-cover-img{
+        height: 200px;
+        background-size: cover !important;
+        background-position: center !important;
+        position: relative;
+    }
+    .user-pic{
+        width: 130px;
+        height: 130px;
+        border-radius: 100%;
+        overflow: hidden;
+        margin: auto;
+        transform: translateY(120px);
+        position: relative;
+        img{
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+        }
+        .file-upload {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .file-upload__label {
+          display: block;
+          color: #fff;
+          border-radius: .4em;
+          transition: background .3s;
+          font-size: 40px;
+          
+          &:hover {
+             cursor: pointer;
+          }
+        }
+            
+        .file-upload__input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            font-size: 1;
+            width:0;
+            height: 100%;
+            opacity: 0;
+        }
+    }
 }

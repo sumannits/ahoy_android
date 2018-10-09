@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { IonicPageModule } from 'ionic-angular';
-import { CreategroupPage } from './creategroup';
+import { EditgroupPage } from './editgroup';
 import { Ng4GeoautocompleteModule } from 'ng4-geoautocomplete';
 
 @NgModule({
   declarations: [
-    CreategroupPage,
+    EditgroupPage,
   ],
   imports: [
-    IonicPageModule.forChild(CreategroupPage),
+    IonicPageModule.forChild(EditgroupPage),
     Ng4GeoautocompleteModule.forRoot(),
   ],
 })
-export class CreategroupPageModule {}
+export class EditgroupPageModule {}

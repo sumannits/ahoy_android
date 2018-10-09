@@ -11,9 +11,20 @@
 </ion-header>
 
 <ion-content padding>
+  <div class="user-cover-img" style="background: url(./assets/imgs/user-bg.jpg)">
+    <div class="user-pic">
+      <img src="./assets/img/default.jpeg" alt="" *ngIf="!lastImage && userData?.image == null">
+      <img src="{{getimageURI+'users/'+userData?.image}}" alt="" *ngIf="userData?.image!=null && !lastImage">
+      <img src="{{pathForImage(lastImage)}}" alt="" *ngIf="lastImage">
+      <div class="file-upload" (click)="presentActionSheet()">
+        <label for="upload" class="file-upload__label"><ion-icon name="ios-camera"></ion-icon></label>
+        <!--<input id="upload" class="file-upload__input" type="file" name="file-upload">-->
+    </div>
+    </div>
+  </div>
   <form [formGroup]="form" #editForm="ngForm">
 		<ion-list class="m-0">
-			<ion-item>
+			<ion-item style="margin-top: 20px;">
         <ion-label fixed><ion-icon name="md-person"></ion-icon></ion-label>
 				<ion-input type="text" placeholder="Name" formControlName="name" autocapitalize="off"></ion-input>
       </ion-item>
@@ -56,12 +67,12 @@
         <p> Upload picture</p>
         <div><button ion-button color="btn-primary" (click)="presentActionSheet()">Get Image</button></div>
         
-      </ion-item>-->
+      </ion-item>
 
       <ion-item *ngIf="lastImage">
           <h4>Image Preview</h4>
           <img src="{{pathForImage(lastImage)}}" alt="Ionic File" width="300" />
-      </ion-item>
+      </ion-item>-->
 		</ion-list>
 
     <ion-list class="mt-10 add-interest">

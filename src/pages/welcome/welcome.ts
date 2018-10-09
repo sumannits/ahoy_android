@@ -42,6 +42,10 @@ export class WelcomePage {
     this.navCtrl.setRoot('WelcomePage');
   }
   
+  public grouplist() {
+    this.navCtrl.setRoot('GrouplistPage');
+  }
+
   public userLogout() {
     this.userService.patchData({is_login:false},'Customers/'+this.userData.id).then((result1:any) => {
     }, (err) => {

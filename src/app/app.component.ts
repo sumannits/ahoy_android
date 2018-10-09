@@ -21,6 +21,7 @@ export class MyApp {
   public isloggedin : boolean = false;
   public loguser:any;
   public loguserDet:any;
+  public getimageURI:any;
   
   constructor(
     private translate: TranslateService, 
@@ -33,6 +34,7 @@ export class MyApp {
     public loadingCtrl: LoadingController,
     public menuCtrl: MenuController
   ) {
+    this.getimageURI= this.getService.apiImgUrl();
     this.presentLoadingCustom();
     platform.ready().then(() => {
       // Okay, so the platform is ready and our plugins are available.
@@ -41,6 +43,7 @@ export class MyApp {
       this.splashScreen.hide();
       this.menuOpened();
       this.nav.setRoot('WelcomePage');
+      //this.nav.setRoot('LoginPage');
     });
     //this.initTranslate();
     this.initializeApp();
@@ -97,20 +100,13 @@ export class MyApp {
       if(this.loguser){
         this.isloggedin = true;
         this.loguserDet = JSON.parse(localStorage.getItem('userPrfDet'));
-        if(this.loguserDet.image){
-          this.profile_image = this.loguserDet.image;
-        }else{
-          this.profile_image = 'assets/img/default.jpeg';
-        }
-        //this.profile_image = 'assets/img/default.jpeg';
-        if(this.loguserDet.name){
-          let userFname= this.loguserDet.name.split(" ");
-          if(userFname[0]){
-            this.user_fname = userFname[0];
-          }else if(userFname[1]){
-            this.user_fname = userFname[1];
-          }
-        }
+        // if(this.loguserDet.image!= null){
+        //   this.profile_image = this.getimageURI+'users/'+this.loguserDet.image;
+        // }else{
+        //   this.profile_image = 'assets/img/default.jpeg';
+        // }
+        this.getUserPrfDetails();
+        
         // this.rootPage = 'WelcomePage';
         
       }else{
@@ -196,6 +192,32 @@ export class MyApp {
       this.nav.setRoot('SignupPage');
     }
     
+  }
+
+  public getUserPrfDetails(){
+    //console.log(this.userData);
+    let userPId = this.loguserDet.id;
+    if(userPId!=''){
+      this.getService.getData('Customers/'+userPId).then((result:any) => {
+        if(result.image!= null){
+            this.profile_image = this.getimageURI+'users/'+result.image;
+        }else{
+            this.profile_image = 'assets/img/default.jpeg';
+        }
+        this.loguserDet=result;
+        if(this.loguserDet.name){
+          let userFname= this.loguserDet.name.split(" ");
+          if(userFname[0]){
+            this.user_fname = userFname[0];
+          }else if(userFname[1]){
+            this.user_fname = userFname[1];
+          }
+        }
+      }, (err) => {
+        
+      })
+    }
+
   }
 }
 

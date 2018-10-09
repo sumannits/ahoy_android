@@ -7,12 +7,214 @@
 <ion-header>
 
   <ion-navbar>
-    <ion-title>groupdetails</ion-title>
+    <div>
+      <ion-segment [(ngModel)]="pet">
+        <ion-segment-button value="group">
+          <ion-icon ios="ios-people" md="md-people"></ion-icon> Group
+        </ion-segment-button>
+        <ion-segment-button value="chatlist">
+          <ion-icon ios="ios-chatboxes" md="md-chatboxes"></ion-icon> Chat List
+        </ion-segment-button>
+        <ion-segment-button value="eventlist">
+          <ion-icon ios="ios-add-circle" md="md-add-circle"></ion-icon> Event List
+        </ion-segment-button>
+      </ion-segment>
+    </div>
   </ion-navbar>
-
 </ion-header>
 
 
 <ion-content padding>
+  <div [ngSwitch]="pet">
+    <ion-list *ngSwitchCase="'group'">
+      <div class="group-up-area">
+        <ion-item>
+          <div class="group-det">
+            <img [src]="groupDetails?.image_url" alt="">
+          </div>
+  
+          <h2 text-center>{{groupDetails?.name}}</h2>
+          <ion-row>
+            <ion-col text-right *ngIf="groupDetails?.user_id != userData.id">
+              <button ion-button class="danger-btn">Join</button>
+            </ion-col>
+            <ion-col text-center>
+              <button ion-button class="danger-btn">Create A Event</button>
+            </ion-col>
+            <ion-col text-left>
+              <button ion-button class="danger-btn">
+                <img src="./assets/imgs/chat.png" class="chat" alt=""> Chat</button>
+            </ion-col>
+          </ion-row>
 
+          <ion-row *ngIf="groupTag.length > 0">
+              <ion-col *ngFor="let grouptag of groupTag">
+                <button ion-button class="danger-btn">{{grouptag.interest.name}}</button>
+              </ion-col>
+          </ion-row>
+        </ion-item>
+      </div>
+      <div class="group-up-area">
+        <ion-list class="chat-detail">
+          <ion-item>
+              <ion-row>
+                  <ion-col col-12 class="pl-0 pr-0">
+                    <p>{{groupDetails?.description}}</p>
+                  </ion-col>
+              </ion-row>
+          </ion-item>
+          <ion-item>
+            <div class="chating-area" *ngFor="let dataCmt of allCommentList; let i=index">
+              <ion-grid style="padding:0 0 5px !important;">
+                <ion-row>
+                  <ion-col col-2 class="pl-0 pr-0">
+                    <div class="chating-area-left">
+                      <img *ngIf="dataCmt.customer.image !=''" alt="" [src]="getimageURI+'users/'+dataCmt.customer.image">
+                      <img *ngIf="dataCmt.customer.image ==''" alt="" src="./assets/img/default.jpeg">
+                    </div>
+                  </ion-col>
+                  <ion-col col-10 class="pl-0 pr-0">
+                    <div class="chating-rt-area">
+                      <div class="chating-area-right">
+                        <h3>{{dataCmt.customer.name}}</h3>
+                        <p> {{dataCmt.message}}</p>
+                      </div>
+                      <button *ngIf="!dataCmt.is_like" ion-button clear class="like-re" (click)="likeComment(dataCmt, i)">Like</button>
+                      <button *ngIf="dataCmt.is_like" ion-button clear class="like-re" (click)="unlikeComment(dataCmt, i)">Unlike</button>
+                      <button ion-button clear class="like-re">Reply</button>
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </div>
+  
+            <div class="chating-area" *ngIf="allCommentList.length == 0">
+              <ion-grid style="padding:0 0 5px !important;">
+                <ion-row>
+                  
+                  <ion-col col-12 class="pl-0 pr-0">
+                    <div class="chating-rt-area">
+                      <p> No comments found. </p>
+                    </div>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </div>
+            <div class="chat-send">
+                <div class="chat-input-area">
+                <input type="text" [(ngModel)]="message" placeholder="Write your comment">
+              </div>
+              <button ion-button round [disabled]="message == ''" class="send" (click)="sendMsg()">
+                <ion-icon ios="ios-send" md="md-send"></ion-icon>
+              </button>
+            </div>
+          </ion-item>
+        </ion-list>
+      </div>
+  
+    </ion-list>
+  
+    <ion-list *ngSwitchCase="'chatlist'">
+        <ion-item>
+          <p>Comming soon...</p>
+        </ion-item>
+      <!--<ion-item>
+        <ion-thumbnail item-start>
+          <img src="img/thumbnail-puppy-1.jpg">
+        </ion-thumbnail>
+        <h2>Ruby</h2>
+      </ion-item>
+      ...-->
+    </ion-list>
+  
+    <ion-list *ngSwitchCase="'eventlist'">
+        <ion-item>
+            <p>Comming soon...</p>
+        </ion-item>
+      <!--<ion-card class="chat-list-card">
+        <div class="image-holder">
+            <img src="assets/imgs/user.jpg" alt="">
+            <div class="online"></div>
+        </div>
+        <div class="info-holder">
+          <div class="info-left">
+            <h2>Roger Wilson</h2>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+          </div>
+          <div class="info-right">
+            <p class="date">Mar 20</p>
+            <p class="event"><img src="assets/imgs/event-color.png" alt=""> 4 event</p>
+          </div>
+        </div>
+      </ion-card>
+      <ion-card class="chat-list-card">
+        <div class="image-holder">
+          <img src="assets/imgs/user.jpg" alt="">
+          <div class="online"></div>
+        </div>
+        <div class="info-holder">
+          <div class="info-left">
+            <h2>Roger Wilson</h2>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+          </div>
+          <div class="info-right">
+            <p class="date">Mar 20</p>
+            <p class="event">
+              <img src="assets/imgs/event-color.png" alt=""> 4 event</p>
+          </div>
+        </div>
+      </ion-card>
+      <ion-card class="chat-list-card">
+        <div class="image-holder">
+          <img src="assets/imgs/user.jpg" alt="">
+          <div class="online"></div>
+        </div>
+        <div class="info-holder">
+          <div class="info-left">
+            <h2>Roger Wilson</h2>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+          </div>
+          <div class="info-right">
+            <p class="date">Mar 20</p>
+            <p class="event">
+              <img src="assets/imgs/event-color.png" alt=""> 4 event</p>
+          </div>
+        </div>
+      </ion-card>
+      <ion-card class="chat-list-card">
+        <div class="image-holder">
+          <img src="assets/imgs/user.jpg" alt="">
+          <div class="online"></div>
+        </div>
+        <div class="info-holder">
+          <div class="info-left">
+            <h2>Roger Wilson</h2>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+          </div>
+          <div class="info-right">
+            <p class="date">Mar 20</p>
+            <p class="event">
+              <img src="assets/imgs/event-color.png" alt=""> 4 event</p>
+          </div>
+        </div>
+      </ion-card>
+      <ion-card class="chat-list-card">
+        <div class="image-holder">
+          <img src="assets/imgs/user.jpg" alt="">
+          <div class="online"></div>
+        </div>
+        <div class="info-holder">
+          <div class="info-left">
+            <h2>Roger Wilson</h2>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+          </div>
+          <div class="info-right">
+            <p class="date">Mar 20</p>
+            <p class="event">
+              <img src="assets/imgs/event-color.png" alt=""> 4 event</p>
+          </div>
+        </div>
+      </ion-card>-->
+    </ion-list>
+  </div>
 </ion-content>

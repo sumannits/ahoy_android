@@ -34,10 +34,11 @@ export class EditprofilePage {
   public selectedIntItems = [];
   public responseIntData: any;
   public addNewInt:boolean = false;
-  //public imageURI:any;
+  public getimageURI:any;
   //public imageFileName:any;
   //public currentName:any;
   public lastImage: string = null;
+  public getApiUrl:any;
 
   public selectLocation: boolean =false;
   public location: any = { lat:null, lng: null, name: null, formatted_address: null}; 
@@ -71,9 +72,17 @@ export class EditprofilePage {
     //   phone: ['', Validators.pattern('[0-9]{10}')]
     // });
     const loguserDet = JSON.parse(localStorage.getItem('userPrfDet'));
+    if(loguserDet.id!=''){
+      this.userService.getData('Customers/'+loguserDet.id).then((result) => {
+        this.userData=result;
+        this.getMyInterestList();
+      }, (err) => {
+        
+      })
+    }
     //console.log(loguserDet);
-    this.userData=loguserDet;
-
+    //this.userData=loguserDet;
+    this.getUserDetails();
     this.form = new FormGroup({
       name: new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z ]*')]),
       phone: new FormControl('', [Validators.required, Validators.pattern('[0-9]{10}')]),
@@ -85,12 +94,13 @@ export class EditprofilePage {
       bio: new FormControl(''),
       interested: fbuilder.array([ ])
     });
-    
+    this.getApiUrl= this.userService.apiUrlFun();
+    this.getimageURI= this.userService.apiImgUrl();
+    //console.log(this.getApiUrl);
   }
 
   ionViewDidLoad() {
     
-    this.getMyInterestList();
     this.getInterestList();
   }
 
@@ -189,7 +199,8 @@ export class EditprofilePage {
         //console.log(result);
         this.responseData = result;
         if(this.responseData.id){
-          localStorage.setItem('userPrfDet', JSON.stringify(result));
+          this.getUserDetails();
+          //localStorage.setItem('userPrfDet', JSON.stringify(result));
           this.presentToast('Data updated successfully.');
 
           //console.log(filterIntData);
@@ -344,11 +355,13 @@ export class EditprofilePage {
           .then(filePath => {
             let correctPath = filePath.substr(0, filePath.lastIndexOf('/') + 1);
             let currentName = imagePath.substring(imagePath.lastIndexOf('/') + 1, imagePath.lastIndexOf('?'));
+            //console.log(currentName);
             this.copyFileToLocalDir(correctPath, currentName, this.createFileName(currentName));
           });
       } else {
         var currentName = imagePath.substr(imagePath.lastIndexOf('/') + 1);
         var correctPath = imagePath.substr(0, imagePath.lastIndexOf('/') + 1);
+        //console.log(currentName);
         this.copyFileToLocalDir(correctPath, currentName, this.createFileName(currentName));
       }
     }, (err) => {
@@ -361,6 +374,7 @@ export class EditprofilePage {
      this.file.copyFile(namePath, currentName, cordova.file.dataDirectory, newFileName).then(success => {
        this.lastImage = newFileName;
        //console.log("NEWFILENAMEEEEEE",this.lastImage);
+       this.uploadImage();
      }, error => {
         this.presentToast('Error while storing file.');
      });
@@ -370,7 +384,9 @@ export class EditprofilePage {
     var d = new Date(),
     //n = d.getTime(),
    // newFileName=n+".jpg";
-    newFileName=currentName;
+    newFileName;
+    //console.log(currentName);
+    newFileName = Date.now()+'_'+currentName;
     return newFileName;
   }
 
@@ -391,29 +407,29 @@ export class EditprofilePage {
     }
   }
 
-  public uploadImage(id) {
+  public uploadImage() {
     // Destination URL
-    var url = "http://111.93.169.90/team6/poolrep/api/users/productimageinsert.json";
+    var url = this.getApiUrl+'Customers/uploadprfimg/'+this.userData.id;
    
     // File for Upload
     var targetPath = this.pathForImage(this.lastImage);
    
     // File name only
     var filename = this.lastImage;
-   
+   //console.log(filename);
     var options = {
       fileKey: "photo",
       photo: filename,
       chunkedMode: false,
       mimeType: "multipart/form-data",
       params : {
-      'photo':filename,
-      'product_id':id
+      'image':filename,
+      'user_id':this.userData.id
        }
      // params : {'fileName': filename}
     };
     const fileTransfer:FileTransferObject = this.transfer.create();
-   
+   //console.log(fileTransfer);
     this.loading = this.loadingCtrl.create({
       content: 'Uploading...',
     });
@@ -422,8 +438,11 @@ export class EditprofilePage {
     // Use the FileTransfer to upload the image
     fileTransfer.upload(targetPath, url, options).then(data => {
       this.loading.dismissAll()
+     
+      //localStorage.setItem('userPrfDet', data.response);
+      //localStorage.setItem('userPrfDet', JSON.stringify(data.response));
       this.presentToast('Image succesful uploaded.');
-      //this.navCtrl.push('HomePage');
+      this.getUserDetails();
     }, err => {
       //console.log("Error",err);
       this.loading.dismissAll()
@@ -499,5 +518,21 @@ export class EditprofilePage {
     this.form.controls['lat'].setValue(this.locJsonData.data.geometry.location.lat);
     this.form.controls['lng'].setValue(this.locJsonData.data.geometry.location.lng);
     this.selectLocation = true;
+  }
+
+  public getUserDetails(){
+    let loguserDet = JSON.parse(localStorage.getItem('userPrfDet'));
+    let userPId = loguserDet.id;
+    //console.log(userPId);
+    if(userPId!=''){
+      this.userService.getData('Customers/'+userPId).then((result) => {
+        //localStorage.setItem('userPrfDet', JSON.stringify(result));
+        this.userData=result;
+        //console.log(result);
+      }, (err) => {
+        
+      })
+    }
+
   }
 }
