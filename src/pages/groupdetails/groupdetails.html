@@ -15,7 +15,7 @@
         <ion-segment-button value="chatlist">
           <ion-icon ios="ios-chatboxes" md="md-chatboxes"></ion-icon> Chat List
         </ion-segment-button>
-        <ion-segment-button value="eventlist">
+        <ion-segment-button (click)="goToEvents()">
           <ion-icon ios="ios-add-circle" md="md-add-circle"></ion-icon> Event List
         </ion-segment-button>
       </ion-segment>
@@ -34,35 +34,28 @@
           </div>
   
           <h2 text-center>{{groupDetails?.name}}</h2>
-          <ion-row>
-            <ion-col text-right *ngIf="groupDetails?.user_id != userData.id">
-              <button ion-button class="danger-btn">Join</button>
-            </ion-col>
-            <ion-col text-center>
-              <button ion-button class="danger-btn">Create A Event</button>
-            </ion-col>
-            <ion-col text-left>
-              <button ion-button class="danger-btn">
-                <img src="./assets/imgs/chat.png" class="chat" alt=""> Chat</button>
-            </ion-col>
-          </ion-row>
-
-          <ion-row *ngIf="groupTag.length > 0">
-              <ion-col *ngFor="let grouptag of groupTag">
-                <button ion-button class="danger-btn">{{grouptag.interest.name}}</button>
-              </ion-col>
-          </ion-row>
+          <div class="inline-btn">            
+              <button ion-button class="danger-btn" *ngIf="groupDetails?.ismember == false && groupDetails?.user_id != userData.id" (click)="join(groupDetails?.id)">Join</button>
+              <button ion-button class="danger-btn" *ngIf="groupDetails?.ismember == true && groupDetails?.user_id != userData.id" (click)="leave(groupDetails?.id)">Leave</button>
+              <button ion-button class="danger-btn" (click)="cevent()">Create A Event</button>            
+              <button ion-button class="danger-btn" *ngIf="groupDetails?.ismember == true || groupDetails?.user_id == userData.id" (click)="createChat()">
+              <img src="assets/imgs/chat.png" class="chat" alt=""> Chat</button>
+          </div>
+          <div class="inline-btn " *ngIf="groupTag.length > 0">
+            <button ion-button class="danger-btn no-radius" *ngFor="let grouptag of groupTag">{{grouptag.interest.name}}</button>
+          </div>
+          <p class="g-text">{{groupDetails?.description}}</p>
         </ion-item>
       </div>
-      <div class="group-up-area">
+      <div class="group-up-area mrg-up">
         <ion-list class="chat-detail">
-          <ion-item>
+          <!-- <ion-item>
               <ion-row>
                   <ion-col col-12 class="pl-0 pr-0">
                     <p>{{groupDetails?.description}}</p>
                   </ion-col>
               </ion-row>
-          </ion-item>
+          </ion-item> -->
           <ion-item>
             <div class="chating-area" *ngFor="let dataCmt of allCommentList; let i=index">
               <ion-grid style="padding:0 0 5px !important;">

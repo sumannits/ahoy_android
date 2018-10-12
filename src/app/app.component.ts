@@ -111,7 +111,7 @@ export class MyApp {
         
       }else{
         // this.rootPage = 'WelcomePage';
-        this.profile_image = 'assets/img/default.jpeg';
+        this.profile_image = './assets/img/default.jpeg';
         this.user_fname = '';
         this.isloggedin = false;
       }
@@ -202,7 +202,7 @@ export class MyApp {
         if(result.image!= null){
             this.profile_image = this.getimageURI+'users/'+result.image;
         }else{
-            this.profile_image = 'assets/img/default.jpeg';
+            this.profile_image = './assets/img/default.jpeg';
         }
         this.loguserDet=result;
         if(this.loguserDet.name){

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, Loading, LoadingController} from 'ionic-angular';
-import { AuthServiceProvider, ResponseMessage } from '../../providers';
+import { IonicPage, NavController, NavParams, Loading, LoadingController,ToastController} from 'ionic-angular';
+import { AuthServiceProvider } from '../../providers';
 /**
  * Generated class for the GroupdetailsPage page.
  *
@@ -23,12 +23,14 @@ export class GroupdetailsPage {
   public message:string = '';
   public allCommentList = [];
   public groupTag = [];
+  public responseData:any;
 
   constructor(
     public navCtrl: NavController, 
     public dataService: AuthServiceProvider,
     public loadingCtrl: LoadingController,
-    public navParams: NavParams
+    public navParams: NavParams,
+    public toastCtrl:ToastController
   ) {
     this.groupId = this.navParams.get('group_id');
     const loguserDet = JSON.parse(localStorage.getItem('userPrfDet'));
@@ -49,16 +51,23 @@ export class GroupdetailsPage {
     });
     this.loading.present();
     this.dataService.getData('UserGroups/'+this.groupId).then((res:any)=>{
+        res.ismember=false;
+        let filterJoinData = '{"where":{"group_id":'+this.groupId+',"customerId":'+this.userData.id+'}}';
+        this.dataService.getData('GroupUsers?filter='+filterJoinData).then((res1:any)=>{
+          if(res1.length>0){
+            res.ismember=true;
+          }
+        },err=>{
         
+        })
         let grpImg = '';
         if(res.image != null){
           grpImg = this.getimageURI+'group/'+res.image;
         }else{
-          grpImg = './assets/img/default.jpeg';
+          grpImg = './assets/img/default512.png';
         }
         res.image_url=grpImg;
         this.groupDetails= res;
-        //console.log(res);
         this.loading.dismissAll()
     },err=>{
       this.loading.dismissAll()
@@ -100,8 +109,19 @@ export class GroupdetailsPage {
   }
   
   getAllComment(){
-    let filterData = '{"where":{"typepid":'+this.groupId+'}, "include":["customer"], "order" : "id desc"}';
+    let filterData = '{"where":{"typepid":'+this.groupId+',"type":1}, "include":["customer"], "order" : "id desc"}';
     this.dataService.getData('comments?filter='+filterData).then((result:any) => {
+      result.forEach((datafilter : any, key: any) => {
+        result[key].is_like = false;
+        let filterData111 = '{"customerId":'+this.userData.id+',"commentId":'+datafilter.id+'}';
+        this.dataService.getData('comment_likes/count?where='+filterData111).then((res:any) => {
+          if(res.count >0){
+            result[key].is_like = true;
+          }
+        }, (err) => {
+          
+        });
+      });
       this.allCommentList=result;
       //console.log(result);
       
@@ -126,5 +146,97 @@ export class GroupdetailsPage {
     },err=>{
       
     })
+  }
+
+  join(id){
+    if(id != ''){
+      this.loading = this.loadingCtrl.create({
+        content: 'Please wait...',
+      });
+      this.loading.present();
+      let JsonData={
+        "group_id": id,
+        "customerId": this.userData.id
+      };
+      this.dataService.postData(JsonData,'GroupUsers').then((result) => {
+        this.responseData = result;
+        if(this.responseData.id){
+          let toast = this.toastCtrl.create({
+            message: 'You have successfully joined the group.',
+            duration: 4000,
+            position: 'top'
+          });
+          toast.present();
+        }
+        this.loading.dismissAll();
+      }, (err) => {
+        let toast = this.toastCtrl.create({
+          message: 'Something Went wrong.Please try again.',
+          duration: 4000,
+          position: 'top'
+        });
+        toast.present();
+        this.loading.dismissAll();
+      });
+    } else {
+      let toast = this.toastCtrl.create({
+        message: 'Please provide id.',
+        duration: 4000,
+        position: 'top'
+      });
+      toast.present();
+    }
+  }
+
+  cevent(){
+    this.navCtrl.push('CreateeventPage');
+  }
+  createChat(){
+    this.navCtrl.push('GroupchatPage',{'group_id':this.groupId});
+  }
+
+  leave(id){
+    if(id != ''){
+      this.loading = this.loadingCtrl.create({
+        content: 'Please wait...',
+      });
+      this.loading.present();
+      let JsonData={
+        "group_id": id,
+        "customerId": this.userData.id
+      };
+      this.dataService.postData(JsonData,'GroupUsers/deletegrpc').then((result) => {
+          this.responseData = result;
+          if(this.responseData.response.type == "success"){
+            let toast = this.toastCtrl.create({
+              message: 'You have successfully leaved the group.',
+              duration: 4000,
+              position: 'top'
+            });
+            toast.present();
+            this.navCtrl.setRoot('GroupdetailsPage',{'group_id':this.groupId});
+          }
+          this.loading.dismissAll();
+      }, (err) => {
+        let toast = this.toastCtrl.create({
+          message: 'Something Went wrong.Please try again.',
+          duration: 4000,
+          position: 'top'
+        });
+        toast.present();
+        this.loading.dismissAll();
+      });
+    } else {
+      let toast = this.toastCtrl.create({
+        message: 'Please provide group id.',
+        duration: 4000,
+        position: 'top'
+      });
+      toast.present();
+    }
+  }
+
+  goToEvents(){
+    this.navCtrl.setRoot('EventlistPage');
   }
 }

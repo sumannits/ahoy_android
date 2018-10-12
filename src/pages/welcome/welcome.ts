@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController } from 'ionic-angular';
+import { IonicPage, NavController ,ToastController} from 'ionic-angular';
 import { MyApp } from '../../app/app.component';
-import { AuthServiceProvider, ResponseMessage } from '../../providers';
+import { AuthServiceProvider } from '../../providers';
 /**
  * The Welcome Page is a splash page that quickly describes the app,
  * and then directs the user to create an account or log in.
@@ -19,9 +19,10 @@ export class WelcomePage {
   public loguser:any;
   constructor(public navCtrl: NavController,
     public userService: AuthServiceProvider,
-    private myApp:MyApp) { 
+    private myApp:MyApp,public toastCtrl:ToastController) { 
       const loguserDet = JSON.parse(localStorage.getItem('userPrfDet'));
       this.userData=loguserDet;
+      console.log(this.userData);
     }
 
   login() {
@@ -43,7 +44,29 @@ export class WelcomePage {
   }
   
   public grouplist() {
-    this.navCtrl.setRoot('GrouplistPage');
+    if(this.userData !=null){
+      this.navCtrl.setRoot('GrouplistPage');
+    } else {
+      let toast = this.toastCtrl.create({
+        message: 'Sorry ! you have to login first.',
+        duration: 4000,
+        position: 'top'
+      });
+      toast.present();
+    }
+  }
+
+  public event(){
+    if(this.userData !=null){
+      this.navCtrl.setRoot('EventlistPage');
+    } else {
+      let toast = this.toastCtrl.create({
+        message: 'Sorry ! you have to login first.',
+        duration: 4000,
+        position: 'top'
+      });
+      toast.present();
+    }
   }
 
   public userLogout() {
