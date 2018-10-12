@@ -11,7 +11,7 @@ import { File } from '@ionic-native/file';
 import * as _ from 'lodash';
 
 /**
- * Generated class for the EditgroupPage page.
+ * Generated class for the EditeventPage page.
  *
  * See https://ionicframework.com/docs/components/#navigation for more info on
  * Ionic pages and navigation.
@@ -19,10 +19,10 @@ import * as _ from 'lodash';
 declare var cordova: any;
 @IonicPage()
 @Component({
-  selector: 'page-editgroup',
-  templateUrl: 'editgroup.html',
+  selector: 'page-editevent',
+  templateUrl: 'editevent.html',
 })
-export class EditgroupPage {
+export class EditeventPage {
   public groupId:any;
   public userData:any;
   public loading: Loading;
@@ -41,9 +41,7 @@ export class EditgroupPage {
   public mySelectedIntList = [];
   public myInputStr:string = '';
   public lastImage: string = null;
-
-  constructor(
-    public navCtrl: NavController, 
+  constructor(public navCtrl: NavController, 
     public dataService: AuthServiceProvider,
     public loadingCtrl: LoadingController,
     public platform: Platform,
@@ -55,19 +53,19 @@ export class EditgroupPage {
     private transfer: FileTransfer,
     private file: File, 
     private filePath: FilePath,
-    public navParams: NavParams
-  ) {
-    this.groupId = this.navParams.get('group_id');
+    public navParams: NavParams) {
+      this.groupId = this.navParams.get('group_id');
     const loguserDet = JSON.parse(localStorage.getItem('userPrfDet'));
     this.userData=loguserDet;
     this.getGroupDetails();
     this.form = new FormGroup({
       name: new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z ]*')]),
       location: new FormControl('', [Validators.required]),
-      loc_lat: new FormControl(''),
-      loc_long: new FormControl(''),
+      latitude: new FormControl(''),
+      longitude: new FormControl(''),
       description: new FormControl(''),
-      selectedInterest: new FormControl('')
+      selectedInterest: new FormControl(''),
+      event_date:new FormControl('', [Validators.required])
     });
     this.getimageURI= this.dataService.apiImgUrl();
     this.getApiUrl= this.dataService.apiUrlFun();
@@ -75,7 +73,6 @@ export class EditgroupPage {
 
   ionViewDidLoad() {
     this.getGroupTagList();
-    
   }
 
   public getInterestList(){
@@ -107,22 +104,22 @@ export class EditgroupPage {
       content: 'Please wait...',
     });
     this.loading.present();
-    this.dataService.getData('UserGroups/'+this.groupId).then((res:any)=>{
+    this.dataService.getData('events/'+this.groupId).then((res:any)=>{
         
         let grpImg = '';
         if(res.image != null){
-          grpImg = this.getimageURI+'group/'+res.image;
+          grpImg = this.getimageURI+'event/'+res.image;
         }else{
           grpImg = './assets/img/default256.png';
         }
         res.image_url=grpImg;
         this.groupDetails= res;
         this.form.controls['name'].setValue(res.name);
-        this.form.controls['loc_lat'].setValue(res.loc_lat);
-        this.form.controls['loc_long'].setValue(res.loc_long);
+        this.form.controls['latitude'].setValue(res.latitude);
+        this.form.controls['longitude'].setValue(res.longitude);
         this.form.controls['location'].setValue(res.location);
         this.form.controls['description'].setValue(res.description);
-        
+        this.form.controls['event_date'].setValue(res.event_date);
         if(res.location!=''){
           this.userSettings['inputString']=res.location;
           this.userSettings = Object.assign({},this.userSettings);
@@ -135,8 +132,8 @@ export class EditgroupPage {
   }
 
   getGroupTagList(){
-    let filterData = '{"where":{"group_id":'+this.groupId+'}, "include":["interest"], "order" : "id desc"}';
-    this.dataService.getData('GroupInterests?filter='+filterData).then((result:any) => {
+    let filterData = '{"where":{"event_id":'+this.groupId+'}, "include":["interest"], "order" : "id desc"}';
+    this.dataService.getData('EventInterests?filter='+filterData).then((result:any) => {
       this.groupTag = result;
       if(this.groupTag.length>0){
         this.groupTag.forEach(element => {
@@ -186,8 +183,8 @@ export class EditgroupPage {
     this.locJsonData=JSON.parse(JSON.stringify(selectedData));
     if(this.locJsonData.data.formatted_address!=''){
       this.form.controls['location'].setValue(this.locJsonData.data.formatted_address);
-      this.form.controls['loc_lat'].setValue(this.locJsonData.data.geometry.location.lat);
-      this.form.controls['loc_long'].setValue(this.locJsonData.data.geometry.location.lng);
+      this.form.controls['latitude'].setValue(this.locJsonData.data.geometry.location.lat);
+      this.form.controls['longitude'].setValue(this.locJsonData.data.geometry.location.lng);
     }
   }
 
@@ -208,7 +205,7 @@ export class EditgroupPage {
 
     let uId = this.groupId;
     // Destination URL
-    var url = this.getApiUrl+'UserGroups/uploadimg/'+uId;
+    var url = this.getApiUrl+'Events/uploadimg/'+uId;
     // File for Upload
     var targetPath = this.pathForImage(this.lastImage);
    
@@ -229,7 +226,7 @@ export class EditgroupPage {
     const fileTransfer:FileTransferObject = this.transfer.create();
     // Use the FileTransfer to upload the image
     fileTransfer.upload(targetPath, url, options).then(data => {
-      this.presentToast('Group Image Uploaded Successfully.');
+      this.presentToast('Event Image Uploaded Successfully.');
       this.loading.dismissAll();
     }, err => {
       this.loading.dismissAll();
@@ -333,7 +330,7 @@ export class EditgroupPage {
     // });
     // filterUserData = _.without(filterUserData, undefined);
 
-    this.dataService.patchData(data,'UserGroups/'+this.groupId).then((result:any) => {
+    this.dataService.patchData(data,'events/'+this.groupId).then((result:any) => {
       let lastGrpId=result.id;
       if(lastGrpId){
         
@@ -346,8 +343,8 @@ export class EditgroupPage {
             }
           });  
           if(selectInterestUser.length>0){
-            let IntjsonData = {"group_id":lastGrpId,"selectinterest":selectInterestUser};
-            this.dataService.postData(IntjsonData,'GroupInterests/insertData').then(res=>{
+            let IntjsonData = {"event_id":lastGrpId,"selectinterest":selectInterestUser};
+            this.dataService.postData(IntjsonData,'EventInterests/insertData').then(res=>{
             
             },err=>{
               
@@ -374,7 +371,7 @@ export class EditgroupPage {
         // }
         
         // insert group activity
-        let IntReportData = {"type":1,"description":' has edit the group "'+data.name+'"',"is_delete":0,"customerId":this.userData.id,"notification_pid":this.groupId};
+        let IntReportData = {"type":4,"description":' has edit the event "'+data.name+'"',"is_delete":0,"customerId":this.userData.id,"notification_pid":this.groupId};
         this.dataService.postData(IntReportData,'reports').then(res=>{
         
         },err=>{
@@ -382,8 +379,8 @@ export class EditgroupPage {
         })
 
         this.loading.dismissAll()
-        this.presentToast('Group edited successfully.');       
-        this.navCtrl.setRoot('GrouplistPage');
+        this.presentToast('Event edited successfully.');       
+        this.navCtrl.setRoot('EventlistPage');
       }else{
         let alert = this.alertCtrl.create({
           title: 'Error!',
@@ -401,4 +398,5 @@ export class EditgroupPage {
       alert.present();
     });
   }
+
 }
